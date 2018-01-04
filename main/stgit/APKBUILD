@@ -1,0 +1,84 @@
+# Maintainer: Rajiv Ranganath <rajiv.ranganath@atihita.com>
+pkgname=stgit
+pkgver=0.18
+pkgrel=0
+pkgdesc="Patch stack for Git repositories"
+url="http://www.procode.org/stgit/"
+arch="noarch"
+license="GPLv2"
+depends="git git-email vim python2"
+makedepends="git python2-dev asciidoc xmlto"
+
+subpackages="
+	$pkgname-bash-completion:bashcomp:noarch
+	$pkgname-contrib:contrib:noarch
+	$pkgname-examples:examples:noarch
+	$pkgname-vim:vim:noarch
+	$pkgname-doc
+	"
+
+source="
+	stgit-$pkgver.tar.gz::https://github.com/ctmarinas/stgit/archive/v$pkgver.tar.gz
+	stgit-0.16-tmpl.patch
+	"
+
+prepare() {
+	cd "$srcdir"/stgit-$pkgver
+	patch -p1 < "$srcdir"/stgit-0.16-tmpl.patch || return 1
+}
+
+build() {
+	cd "$builddir"
+	make all doc prefix=/usr
+}
+
+package() {
+	cd "$builddir"
+	make install install-doc DESTDIR="$pkgdir" prefix=/usr
+}
+
+bashcomp() {
+        pkgdesc="Bash completion for stgit"
+        depends=""
+        install_if="$pkgname=$pkgver-r$pkgrel bash-completion"
+
+        install -Dm644 "$pkgdir"/usr/share/stgit/completion/stgit-completion.bash \
+                "$subpkgdir"/usr/share/bash-completion/completions/$pkgname
+	rm -rf "$pkgdir"/usr/share/stgit/completion
+}
+
+contrib() {
+        pkgdesc="Contrib for stgit"
+        depends=""
+        install_if="$pkgname=$pkgver-r$pkgrel"
+
+        install -Dm644 "$pkgdir"/usr/share/stgit/contrib/stgbashprompt.sh \
+                "$subpkgdir"/usr/share/stgit/contrib/stgbashprompt.sh
+	rm -rf "$pkgdir"/usr/share/stgit/contrib
+}
+
+examples() {
+        pkgdesc="Examples for stgit"
+        depends=""
+        install_if="$pkgname=$pkgver-r$pkgrel"
+
+	mkdir -p "$subpkgdir"/usr/share/stgit/examples
+        install -Dm644 "$pkgdir"/usr/share/stgit/examples/* \
+                "$subpkgdir"/usr/share/stgit/examples
+	rm -rf "$pkgdir"/usr/share/stgit/examples
+}
+
+vim() {
+        pkgdesc="Vim syntax for stgit"
+        depends=""
+        install_if="$pkgname=$pkgver-r$pkgrel"
+
+	local f=
+	for f in ftdetect/stg.vim syntax/stgedit.vim syntax/stgmail.vim syntax/stgnew.vim syntax/stgsquash.vim; do
+		install -Dm644 "$srcdir"/stgit-"$pkgver"/contrib/vim/$f \
+			"$subpkgdir"/usr/share/vim/vimfiles/$f
+	done
+}
+
+sha512sums="5820cc1a8cdd5183fbe309b4b80568098844ff57934c75a43263b5cfcdac4b64e015abc9ed6a53dd856236d76bd0ebeec31e87561bca0d0d82a6e5ec7a10745f  stgit-$pkgver.tar.gz
+abb1aa227d82d266426b595cee012944efc2545b9330137d60160efe319022930a96f682ef9ea5f53d27b6401407b9553a49e9ac6238d3de17580370d311913a  stgit-0.16-tmpl.patch"
