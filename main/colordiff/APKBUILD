@@ -1,0 +1,25 @@
+# Maintainer: Rajiv Ranganath <rajiv.ranganath@atihita.com>
+pkgname=colordiff
+pkgver=1.0.18
+pkgrel=0
+pkgdesc="Color terminal highlighter for diff files"
+url="http://www.colordiff.org/"
+arch="noarch"
+license="GPLv2+"
+depends="diffutils less perl"
+makedepends="perl-dev xmlto"
+
+subpackages="
+	$pkgname-doc
+	"
+
+source="
+	colordiff-$pkgver.tar.gz::http://www.colordiff.org/colordiff-$pkgver.tar.gz
+	"
+
+package() {
+	cd "$builddir"
+	make install DESTDIR="$pkgdir" INSTALL_DIR=/usr/bin ETC_DIR=/etc MAN_DIR=/usr/share/man
+}
+
+sha512sums="53eb855b2554ca736146983adb522c8c06e4cfb9eb27bf9acb659c210b2af8101dba76ae392cf14db62fab61e3e5d3b664196c0f6432d47acdfa0846c799aa83  colordiff-$pkgver.tar.gz"
